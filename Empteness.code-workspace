@@ -1,0 +1,868 @@
+{
+	"folders": [
+		{
+			"name": "Empteness",
+			"path": "."
+		},
+		{
+			"name": "UE5",
+			"path": "/large/UnrealEngine"
+		}
+	],
+	"settings": {
+		"typescript.tsc.autoDetect": "off",
+		"npm.autoDetect": "off"
+	},
+	"extensions": {
+		"recommendations": [
+			"ms-vscode.cpptools",
+			"ms-dotnettools.csharp",
+			"vadimcn.vscode-lldb",
+			"ms-vscode.mono-debug",
+			"dfarley1.file-picker"
+		]
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"tasks": [
+			{
+				"label": "Empteness Linux Debug Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"Linux",
+					"Debug",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness Linux Debug Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"Linux",
+					"Debug",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"Empteness Linux Debug Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness Linux Debug Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"Linux",
+					"Debug",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness Linux DebugGame Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"Linux",
+					"DebugGame",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness Linux DebugGame Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"Linux",
+					"DebugGame",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"Empteness Linux DebugGame Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness Linux DebugGame Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"Linux",
+					"DebugGame",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness Linux Development Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"Linux",
+					"Development",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness Linux Development Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"Linux",
+					"Development",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"Empteness Linux Development Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness Linux Development Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"Linux",
+					"Development",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness Linux Test Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"Linux",
+					"Test",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness Linux Test Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"Linux",
+					"Test",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"Empteness Linux Test Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness Linux Test Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"Linux",
+					"Test",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness Linux Shipping Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"Linux",
+					"Shipping",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness Linux Shipping Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"Linux",
+					"Shipping",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"Empteness Linux Shipping Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness Linux Shipping Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"Linux",
+					"Shipping",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness LinuxArm64 Debug Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"LinuxArm64",
+					"Debug",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness LinuxArm64 Debug Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"LinuxArm64",
+					"Debug",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"Empteness LinuxArm64 Debug Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness LinuxArm64 Debug Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"LinuxArm64",
+					"Debug",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness LinuxArm64 DebugGame Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"LinuxArm64",
+					"DebugGame",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness LinuxArm64 DebugGame Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"LinuxArm64",
+					"DebugGame",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"Empteness LinuxArm64 DebugGame Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness LinuxArm64 DebugGame Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"LinuxArm64",
+					"DebugGame",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness LinuxArm64 Development Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"LinuxArm64",
+					"Development",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness LinuxArm64 Development Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"LinuxArm64",
+					"Development",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"Empteness LinuxArm64 Development Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness LinuxArm64 Development Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"LinuxArm64",
+					"Development",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness LinuxArm64 Test Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"LinuxArm64",
+					"Test",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness LinuxArm64 Test Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"LinuxArm64",
+					"Test",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"Empteness LinuxArm64 Test Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness LinuxArm64 Test Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"LinuxArm64",
+					"Test",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness LinuxArm64 Shipping Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"LinuxArm64",
+					"Shipping",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness LinuxArm64 Shipping Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"LinuxArm64",
+					"Shipping",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"Empteness LinuxArm64 Shipping Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "Empteness LinuxArm64 Shipping Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"Empteness",
+					"LinuxArm64",
+					"Shipping",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "EmptenessEditor Linux Debug Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"EmptenessEditor",
+					"Linux",
+					"Debug",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "EmptenessEditor Linux Debug Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"EmptenessEditor",
+					"Linux",
+					"Debug",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"EmptenessEditor Linux Debug Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "EmptenessEditor Linux Debug Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"EmptenessEditor",
+					"Linux",
+					"Debug",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "EmptenessEditor Linux DebugGame Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"EmptenessEditor",
+					"Linux",
+					"DebugGame",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "EmptenessEditor Linux DebugGame Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"EmptenessEditor",
+					"Linux",
+					"DebugGame",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"EmptenessEditor Linux DebugGame Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "EmptenessEditor Linux DebugGame Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"EmptenessEditor",
+					"Linux",
+					"DebugGame",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "EmptenessEditor Linux Development Build",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"EmptenessEditor",
+					"Linux",
+					"Development",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "EmptenessEditor Linux Development Rebuild",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"EmptenessEditor",
+					"Linux",
+					"Development",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex"
+				],
+				"problemMatcher": "$msCompile",
+				"dependsOn": [
+					"EmptenessEditor Linux Development Clean"
+				],
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			},
+			{
+				"label": "EmptenessEditor Linux Development Clean",
+				"group": "build",
+				"command": "Engine/Build/BatchFiles/Linux/Build.sh",
+				"args": [
+					"EmptenessEditor",
+					"Linux",
+					"Development",
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-waitmutex",
+					"-clean"
+				],
+				"problemMatcher": "$msCompile",
+				"type": "shell",
+				"options": {
+					"cwd": "/large/UnrealEngine"
+				}
+			}
+		]
+	},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+			{
+				"name": "Launch Empteness (Debug)",
+				"request": "launch",
+				"program": "/home/lxsky/Documents/Unreal Projects/Empteness/Binaries/Linux/Empteness-Linux-Debug",
+				"preLaunchTask": "Empteness Linux Debug Build",
+				"args": [
+				],
+				"cwd": "/large/UnrealEngine",
+				"type": "cppdbg",
+				"visualizerFile": "/large/UnrealEngine/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
+				"showDisplayString": true
+			},
+			{
+				"name": "Launch Empteness (DebugGame)",
+				"request": "launch",
+				"program": "/home/lxsky/Documents/Unreal Projects/Empteness/Binaries/Linux/Empteness-Linux-DebugGame",
+				"preLaunchTask": "Empteness Linux DebugGame Build",
+				"args": [
+				],
+				"cwd": "/large/UnrealEngine",
+				"type": "cppdbg",
+				"visualizerFile": "/large/UnrealEngine/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
+				"showDisplayString": true
+			},
+			{
+				"name": "Launch Empteness (Development)",
+				"request": "launch",
+				"program": "/home/lxsky/Documents/Unreal Projects/Empteness/Binaries/Linux/Empteness",
+				"preLaunchTask": "Empteness Linux Development Build",
+				"args": [
+				],
+				"cwd": "/large/UnrealEngine",
+				"type": "cppdbg",
+				"visualizerFile": "/large/UnrealEngine/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
+				"showDisplayString": true
+			},
+			{
+				"name": "Launch Empteness (Test)",
+				"request": "launch",
+				"program": "/home/lxsky/Documents/Unreal Projects/Empteness/Binaries/Linux/Empteness-Linux-Test",
+				"preLaunchTask": "Empteness Linux Test Build",
+				"args": [
+				],
+				"cwd": "/large/UnrealEngine",
+				"type": "cppdbg",
+				"visualizerFile": "/large/UnrealEngine/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
+				"showDisplayString": true
+			},
+			{
+				"name": "Launch Empteness (Shipping)",
+				"request": "launch",
+				"program": "/home/lxsky/Documents/Unreal Projects/Empteness/Binaries/Linux/Empteness-Linux-Shipping",
+				"preLaunchTask": "Empteness Linux Shipping Build",
+				"args": [
+				],
+				"cwd": "/large/UnrealEngine",
+				"type": "cppdbg",
+				"visualizerFile": "/large/UnrealEngine/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
+				"showDisplayString": true
+			},
+			{
+				"name": "Launch EmptenessEditor (Debug)",
+				"request": "launch",
+				"program": "/large/UnrealEngine/Engine/Binaries/Linux/UnrealEditor-Linux-Debug",
+				"preLaunchTask": "EmptenessEditor Linux Debug Build",
+				"args": [
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject"
+				],
+				"cwd": "/large/UnrealEngine",
+				"type": "cppdbg",
+				"visualizerFile": "/large/UnrealEngine/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
+				"showDisplayString": true
+			},
+			{
+				"name": "Launch EmptenessEditor (DebugGame)",
+				"request": "launch",
+				"program": "/large/UnrealEngine/Engine/Binaries/Linux/UnrealEditor-Linux-DebugGame",
+				"preLaunchTask": "EmptenessEditor Linux DebugGame Build",
+				"args": [
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject"
+				],
+				"cwd": "/large/UnrealEngine",
+				"type": "cppdbg",
+				"visualizerFile": "/large/UnrealEngine/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
+				"showDisplayString": true
+			},
+			{
+				"name": "Launch EmptenessEditor (Development)",
+				"request": "launch",
+				"program": "/large/UnrealEngine/Engine/Binaries/Linux/UnrealEditor",
+				"preLaunchTask": "EmptenessEditor Linux Development Build",
+				"args": [
+					"/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject"
+				],
+				"cwd": "/large/UnrealEngine",
+				"type": "cppdbg",
+				"visualizerFile": "/large/UnrealEngine/Engine/Extras/VisualStudioDebugging/Unreal.natvis",
+				"showDisplayString": true
+			},
+			{
+				"name": "Generate Project Files",
+				"type": "coreclr",
+				"request": "launch",
+				"preLaunchTask": "UnrealBuildTool Linux Development Build",
+				"program": "/large/UnrealEngine/Engine/Build/BatchFiles/RunUBT.bat",
+				"args": [
+					"-projectfiles",
+					"-vscode",
+					"-project=/home/lxsky/Documents/Unreal Projects/Empteness/Empteness.uproject",
+					"-game",
+					"-engine",
+					"-dotnet"
+				],
+				"console": "internalConsole",
+				"internalConsoleOptions": "openOnSessionStart",
+				"stopAtEntry": false,
+				"cwd": "/large/UnrealEngine"
+			}
+		]
+	}
+}
