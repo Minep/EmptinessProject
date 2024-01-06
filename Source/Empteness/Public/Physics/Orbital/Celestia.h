@@ -5,9 +5,9 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "CosmosInstance.h"
-#include "Orbital/CelestialBody.h"
+#include "Physics/Orbital/CelestialBody.h"
 #include "Math/MathFwd.h"
-#include "Orbital/Solver/ISolver.h"
+#include "Physics/Solver/IOrbitalMechanicSolver.h"
 
 #include "Celestia.generated.h"
 
@@ -26,7 +26,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, Meta = (DisplayName = "Rel.Mass"))
 	// Relative mass compare to Earth's Mass
-	double mass;
+	double RelativeMass;
 
 	UPROPERTY(EditAnywhere, Meta = (DisplayName = "SOI Radius"))
 	// Relative mass compare to Earth's Mass
@@ -35,10 +35,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, Meta = (DisplayName = "Global Spatial State"))
 	FSpatialState GlobalSpatial;
 
+	FVector3d MainAttraction;
+
 protected:
 	UCosmosInstance* CosmosInstance;
 
-	ISolver* Solver;
+	IOrbitalMechanicSolver* Solver;
 
 	double Mu;
 
@@ -48,6 +50,8 @@ protected:
 	ACelestia* Centric = nullptr;
 
 	int id;
+
+	bool bKinematicObject = false;
 
 protected:
 	// Called when the game starts or when spawned
@@ -75,12 +79,12 @@ public:
 public:
 	virtual FVector3d FrameLocalPosition(FVector3d global_pos) override
 	{
-		return global_pos - GlobalSpatial.position;
+		return global_pos - GlobalSpatial.Position;
 	}
 
 	virtual double GetObjectMass() override
 	{
-		return mass;
+		return RelativeMass;
 	}
 
 	virtual FSpatialState ToAbsoluteState(const FSpatialState& sstate) override
@@ -113,4 +117,6 @@ public:
 	{
 		return GlobalSpatial;
 	}
+
+	virtual void UpdatePhysicsObjectTransform(double DeltaTime, FTransform& Transform);
 };

@@ -13,7 +13,7 @@ UCelestialProximitySolver::UCelestialProximitySolver()
 ICelestialBody* UCelestialProximitySolver::GetCapture(ICelestialBody* const &self)
 {
 	TArray<int> possible_captures;
-	FVector3d pos = self->AbsoluteSpatialState().position;
+	FVector3d pos = self->AbsoluteSpatialState().Position;
 	UE::Geometry::FAxisAlignedBox3d unitBound = UE::Geometry::FAxisAlignedBox3d(pos, 0.5);
 
 	RootSOIs->RangeQuery(unitBound, possible_captures);
@@ -48,7 +48,7 @@ void UCelestialProximitySolver::AddCelestialBody(ICelestialBody* const &body)
 	
 	celestials.Emplace(id, body);
 
-	FVector3d pos = body->AbsoluteSpatialState().position;
+	FVector3d pos = body->AbsoluteSpatialState().Position;
 	UE::Geometry::FAxisAlignedBox3d soi_aabb = UE::Geometry::FAxisAlignedBox3d(pos, body->GetSOIRadius());
 
 	RootSOIs->InsertObject(id, soi_aabb);
@@ -57,7 +57,7 @@ void UCelestialProximitySolver::AddCelestialBody(ICelestialBody* const &body)
 void UCelestialProximitySolver::UpdateSpatialInfo(ICelestialBody* const &body)
 {
 	int id = body->GetCelestialID();
-	FVector3d pos = body->AbsoluteSpatialState().position;
+	FVector3d pos = body->AbsoluteSpatialState().Position;
 	UE::Geometry::FAxisAlignedBox3d soi_aabb = UE::Geometry::FAxisAlignedBox3d(pos, body->GetSOIRadius());
 
 	RootSOIs->ReinsertObject(id, soi_aabb);

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Orbital/CelestialBody.h"
+#include "Physics/Orbital/CelestialBody.h"
 #include "GameFramework/Actor.h"
 #include "Spatial/SparseDynamicOctree3.h"
 #include "CelestialProximitySolver.generated.h"

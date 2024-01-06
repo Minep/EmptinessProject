@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Celestia.h"
-#include "Orbital/Physical.h"
+#include "Physics/Orbital/Celestia.h"
+#include "Physics/Physical.h"
 #include "MyUtils.h"
-#include "Orbital/Solver/PatchedConicSolver.h"
+#include "Physics/Solver/PatchedConicSolver.h"
 
 
 // Sets default values
@@ -15,10 +15,6 @@ ACelestia::ACelestia()
 	bAsyncPhysicsTickEnabled = true;
 
 	Solver = new PatchedConicSolver();
-
-	auto obj = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-	check(obj);
-	SetRootComponent(obj);
 
 	Tags.Push(ACTOR_TAG("Celestia"));
 
@@ -32,12 +28,11 @@ void ACelestia::BeginPlay()
 	CosmosInstance = Cast<UCosmosInstance>(GetGameInstance());
 
 	ensure(CosmosInstance);
-}
 
-void ACelestia::PreInitializeComponents()
-{
-	Super::PreInitializeComponents();
-	
+	if (bKinematicObject) {
+		return;
+	}
+
 	TArray<AActor*> actors;
 	GetAttachedActors(actors, true);
 	
@@ -50,13 +45,18 @@ void ACelestia::PreInitializeComponents()
 		c->Centric = this;
 	}
 
-	Mu = Physical::GetGParam(mass, 0);
+	Mu = Physical::GetGParam(RelativeMass, 0);
 
 	if (soi_radius <= 0) {
-		soi_radius = Physical::GetSOIRadius(mass, 0.01);
+		soi_radius = Physical::GetSOIRadius(RelativeMass, 0.01);
 	}
 	
 	LoadInitialState(ORBITAL_ELEMT);
+}
+
+void ACelestia::PreInitializeComponents()
+{
+	Super::PreInitializeComponents();
 }
 
 // Called every frame
@@ -66,30 +66,43 @@ void ACelestia::Tick(float DeltaTime)
 	
 }
 
-void ACelestia::AsyncPhysicsTickActor(float DeltaTime, float SimTime) {
-	Super::AsyncPhysicsTickActor(DeltaTime, SimTime);
-	
+void ACelestia::UpdatePhysicsObjectTransform(double DeltaTime, FTransform& Transform)
+{
 	if (!Centric) {
-		return;
+		Solver->SimulationStep(0, DeltaTime, GlobalSpatial);
+	} else {
+		FSpatialState local = Centric->ToFrameLocalState(GlobalSpatial);
+
+		Solver->SimulationStep(Centric->Mu, DeltaTime, local);
+
+		GlobalSpatial = Centric->ToAbsoluteState(local);
 	}
-
-	FSpatialState local = Centric->ToFrameLocalState(GlobalSpatial);
-
-	Solver->SimulationStep(Centric->Mu, DeltaTime, local);
-
-	GlobalSpatial = Centric->ToAbsoluteState(local);
 	
-	// FHitResult hit;
-	SetActorLocation(GlobalSpatial.position, false);
+	Transform.SetTranslation(GlobalSpatial.Position * 1e3);
 
 	UCelestialProximitySolver* ProximitySolver =
 		CosmosInstance->SubsystemOf<UCelestialProximitySolver>(UCosmosInstance::PROXIMITY_SOLVER);
 
-	ProximitySolver->UpdateSpatialInfo(this);
+	//ProximitySolver->UpdateSpatialInfo(this);
 	UpdateOrbitalElement();
 
 	// ICelestialBody* capture = ProximitySolver->GetCapture(this);
 	// Centric = capture ? Cast<ACelestia>(capture) : nullptr;
+}
+
+
+void ACelestia::AsyncPhysicsTickActor(float DeltaTime, float SimTime) {
+	Super::AsyncPhysicsTickActor(DeltaTime, SimTime);
+
+	if (bKinematicObject) {
+		return;
+	}
+
+	auto T = GetActorTransform();
+	
+	UpdatePhysicsObjectTransform(DeltaTime, T);
+	
+	SetActorTransform(T);
 }
 
 void ACelestia::LoadInitialState(CelestialStateSource source)
@@ -104,8 +117,6 @@ void ACelestia::LoadInitialState(CelestialStateSource source)
 		FSpatialState local = Solver->SolveLocalSpatialState(Centric, orbit);
 		GlobalSpatial = Centric->ToAbsoluteState(local);
 	}
-	
-	SetActorLocation(GlobalSpatial.position);
 }
 
 void ACelestia::UpdateOrbitalElement()

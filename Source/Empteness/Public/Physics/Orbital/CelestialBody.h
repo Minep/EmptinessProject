@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Physical.h"
+#include "Physics/Physical.h"
 #include "UObject/Interface.h"
 #include "CelestialBody.generated.h"
 

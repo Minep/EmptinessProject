@@ -1,8 +1,8 @@
 #pragma once
 
-#include "ISolver.h"
+#include "IOrbitalMechanicSolver.h"
 
-class PatchedConicSolver: public ISolver
+class PatchedConicSolver: public IOrbitalMechanicSolver
 {
     public:
         PatchedConicSolver()
@@ -12,8 +12,8 @@ class PatchedConicSolver: public ISolver
 
         virtual void SolveOrbitalElement(double mu, const FSpatialState& state, FOrbitalState& orbit) override
         {
-        	FVector v = Physical::ToEquatorial(state.velocity);
-        	FVector r = Physical::ToEquatorial(state.position);
+        	FVector v = Physical::ToEquatorial(state.Velocity);
+        	FVector r = Physical::ToEquatorial(state.Position);
         	FVector h = r ^ v;
         	FVector N = FVector::UnitZ() ^ h;
 
@@ -64,11 +64,18 @@ class PatchedConicSolver: public ISolver
 	
         virtual void SimulationStep(double mu, double dt, FSpatialState& state) override
         {
-        	FVector v_tangent = state.velocity;
-        	FVector a_normal = mu / state.position.SizeSquared() * (-state.position / state.position.Size());
-        	state.velocity = a_normal * dt + v_tangent;
-        	state.position += state.velocity * dt;
-        	state.acceleration = a_normal;
+        	FVector a_normal = GetGravitationPull(mu, state);
+        	
+        	state.Velocity += (a_normal + state.Acceleration) * dt;
+        	state.Position += state.Velocity * dt;
+        }
+
+		virtual FVector3d GetGravitationPull(double mu, FSpatialState& state) override
+        {
+        	if (mu != 0) {
+        		return mu / state.Position.SizeSquared() * (-state.Position / state.Position.Size());
+        	}
+        	return FVector3d::Zero();
         }
 	
 		virtual FSpatialState SolveLocalSpatialState(IInertialFrame* ref, FOrbitalState& orbit_el) override
@@ -77,9 +84,9 @@ class PatchedConicSolver: public ISolver
 
         	FSpatialState state;
 
-        	state.position = orbit_el.pa * FVector3d::UnitX();
+        	state.Position = orbit_el.pa * FVector3d::UnitX();
 
-        	FVector r = ras_rot.RotateVector(-state.position);
+        	FVector r = ras_rot.RotateVector(-state.Position);
         	double mu = Physical::GetGParam(ref->GetObjectMass(),0);
         	double v = sqrt((mu * (1 + orbit_el.ecc)) / r.Size());
 	
@@ -92,11 +99,12 @@ class PatchedConicSolver: public ISolver
         	vt.Set(px, py, 0);
         	vt *= v;
 
-        	state.velocity.Set(vt.X, vt.Y, vt.Z);
+        	state.Velocity.Set(vt.X, vt.Y, vt.Z);
 
         	FQuat inc_rot = FQuat(r / r.Size(), FMath::DegreesToRadians(orbit_el.inc));
-        	state.velocity = inc_rot.RotateVector(state.velocity);
-        	state.position = -r;
+        	state.Velocity = inc_rot.RotateVector(-state.Velocity);
+        	state.Position = -r;
+        	state.Acceleration = FVector3d::Zero();
 
         	return state;
         }
