@@ -11,7 +11,7 @@
 UINTERFACE()
 class UCelestialBody : public UInterface
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 };
 
 /**
@@ -19,12 +19,12 @@ class UCelestialBody : public UInterface
  */
 class EMPTENESS_API ICelestialBody
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
+    // Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual int GetCelestialID() const;
-	virtual double GetMu() const;
-	virtual double GetSOIRadius() const;
-	virtual const FSpatialState& AbsoluteSpatialState() const;
+    virtual int GetCelestialID() const;
+    virtual double GetMu() const;
+    virtual double GetSOIRadius() const;
+    virtual const FSpatialState& AbsoluteSpatialState() const;
 };

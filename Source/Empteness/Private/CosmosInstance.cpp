@@ -5,5 +5,5 @@
 
 UCosmosInstance::UCosmosInstance()
 {
-	ProximitySolver = NewObject<UCelestialProximitySolver>();
+    ProximitySolver = NewObject<UCelestialProximitySolver>();
 }

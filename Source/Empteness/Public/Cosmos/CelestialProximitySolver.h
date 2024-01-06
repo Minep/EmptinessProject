@@ -11,17 +11,17 @@
 UCLASS()
 class EMPTENESS_API UCelestialProximitySolver : public UObject
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 protected:
-	UE::Geometry::FSparseDynamicOctree3* RootSOIs;
-	TMap<int, ICelestialBody*> celestials;
+    UE::Geometry::FSparseDynamicOctree3* RootSOIs;
+    TMap<int, ICelestialBody*> celestials;
 
-public:	
-	// Sets default values for this actor's properties
-	UCelestialProximitySolver();
+public:    
+    // Sets default values for this actor's properties
+    UCelestialProximitySolver();
 
-	virtual ICelestialBody* GetCapture(ICelestialBody* const &self);
-	virtual void AddCelestialBody(ICelestialBody* const &body);
-	virtual void UpdateSpatialInfo(ICelestialBody* const &body);
+    virtual ICelestialBody* GetCapture(ICelestialBody* const &self);
+    virtual void AddCelestialBody(ICelestialBody* const &body);
+    virtual void UpdateSpatialInfo(ICelestialBody* const &body);
 };

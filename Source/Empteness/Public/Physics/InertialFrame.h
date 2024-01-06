@@ -10,17 +10,17 @@
  */
 class IInertialFrame
 {
-	public:
-	/**
-	 * Convert an absolute frame position into current frame
-	 * @param global_pos position within absolute frame
-	 * @return position within current frame
-	 */
-	virtual FVector3d FrameLocalPosition(const FVector3d global_pos);
+    public:
+    /**
+     * Convert an absolute frame position into current frame
+     * @param global_pos position within absolute frame
+     * @return position within current frame
+     */
+    virtual FVector3d FrameLocalPosition(const FVector3d global_pos);
 
-	virtual FSpatialState ToAbsoluteState(const FSpatialState& sstate);
-	
-	virtual FSpatialState ToFrameLocalState(const FSpatialState& sstate);
+    virtual FSpatialState ToAbsoluteState(const FSpatialState& sstate);
+    
+    virtual FSpatialState ToFrameLocalState(const FSpatialState& sstate);
 
-	virtual double GetObjectMass();
+    virtual double GetObjectMass();
 };

@@ -13,28 +13,28 @@
 UCLASS()
 class EMPTENESS_API UCosmosInstance : public UGameInstance
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	UCelestialProximitySolver* ProximitySolver;
+    UCelestialProximitySolver* ProximitySolver;
 public:
-	enum CosmosSubsystem
-	{
-		PROXIMITY_SOLVER
-	};
+    enum CosmosSubsystem
+    {
+        PROXIMITY_SOLVER
+    };
 public:
-	UCosmosInstance();
+    UCosmosInstance();
 
-	template <class T>
-	T* SubsystemOf(CosmosSubsystem subsys)
-	{
-		switch (subsys) {
-			case PROXIMITY_SOLVER:
-				{
-					return ProximitySolver;
-				}
-		}
+    template <class T>
+    T* SubsystemOf(CosmosSubsystem subsys)
+    {
+        switch (subsys) {
+            case PROXIMITY_SOLVER:
+                {
+                    return ProximitySolver;
+                }
+        }
 
-		return nullptr;
-	}
+        return nullptr;
+    }
 };

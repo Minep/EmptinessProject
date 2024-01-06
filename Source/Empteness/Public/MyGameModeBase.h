@@ -12,9 +12,9 @@
 UCLASS()
 class EMPTENESS_API AMyGameModeBase : public AGameModeBase
 {
-	GENERATED_BODY()
-	
-	
-	
-	
+    GENERATED_BODY()
+    
+    
+    
+    
 };

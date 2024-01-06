@@ -21,25 +21,25 @@ struct FSpatialState {
     UPROPERTY(VisibleAnywhere, Meta = (DisplayName = "Acceleration"))
     FVector Acceleration;
 
-	FSpatialState operator+(const FSpatialState& b) const
-	{
-		FSpatialState out;
-		out.Position = Position + b.Position;
-		out.Velocity = Velocity + b.Velocity;
-		out.Acceleration = Acceleration + b.Acceleration;
+    FSpatialState operator+(const FSpatialState& b) const
+    {
+        FSpatialState out;
+        out.Position = Position + b.Position;
+        out.Velocity = Velocity + b.Velocity;
+        out.Acceleration = Acceleration + b.Acceleration;
 
-		return out;
-	}
+        return out;
+    }
 
-	FSpatialState operator-(const FSpatialState& b) const
-	{
-		FSpatialState out;
-		out.Position = Position - b.Position;
-		out.Velocity = Velocity - b.Velocity;
-		out.Acceleration = Acceleration - b.Acceleration;
+    FSpatialState operator-(const FSpatialState& b) const
+    {
+        FSpatialState out;
+        out.Position = Position - b.Position;
+        out.Velocity = Velocity - b.Velocity;
+        out.Acceleration = Acceleration - b.Acceleration;
 
-		return out;
-	}
+        return out;
+    }
 };
 
 USTRUCT()
@@ -47,35 +47,35 @@ struct FOrbitalState {
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, Meta = (DisplayName = "Inclination"))
-	// inclination
-	double inc;
+    // inclination
+    double inc;
 
-	UPROPERTY(EditAnywhere, Meta = (DisplayName = "Ascension"))
-	// right ascension
-	double ras;
+    UPROPERTY(EditAnywhere, Meta = (DisplayName = "Ascension"))
+    // right ascension
+    double ras;
 
-	UPROPERTY(EditAnywhere, Meta = (DisplayName = "Eccentricity"))
-	// eccentricity
-	double ecc;
+    UPROPERTY(EditAnywhere, Meta = (DisplayName = "Eccentricity"))
+    // eccentricity
+    double ecc;
 
-	UPROPERTY(VisibleAnywhere, Meta = (DisplayName = "Perigee Argument"))
-	// arugument of perigee
-	double aop;
+    UPROPERTY(VisibleAnywhere, Meta = (DisplayName = "Perigee Argument"))
+    // arugument of perigee
+    double aop;
 
-	UPROPERTY(VisibleAnywhere, Meta = (DisplayName = "True Anomaly"))
-	// true anomaly
-	double tan;
+    UPROPERTY(VisibleAnywhere, Meta = (DisplayName = "True Anomaly"))
+    // true anomaly
+    double tan;
 
-	UPROPERTY(VisibleAnywhere, Meta = (DisplayName = "Apoapsis"))
-	// apoapsis
-	double ap;
+    UPROPERTY(VisibleAnywhere, Meta = (DisplayName = "Apoapsis"))
+    // apoapsis
+    double ap;
 
-	UPROPERTY(EditAnywhere, Meta = (DisplayName = "Periapsis"))
-	// periapsis
-	double pa;
+    UPROPERTY(EditAnywhere, Meta = (DisplayName = "Periapsis"))
+    // periapsis
+    double pa;
 
-	UPROPERTY(VisibleAnywhere, Meta = (DisplayName = "Orbital Period"))
-	double period;
+    UPROPERTY(VisibleAnywhere, Meta = (DisplayName = "Orbital Period"))
+    double period;
 };
 
 #define ASTRO_MASS 6e24
@@ -100,12 +100,12 @@ class Physical {
 
         enum EQuantity
         {
-        	// Unit representing a force (SI: kg.m.s^-2)
-	        Force,
-        	// Unit representing mass (SI: kg)
-        	Mass,
-        	// Unit representing length (SI: m)
-        	Length
+            // Unit representing a force (SI: kg.m.s^-2)
+            Force,
+            // Unit representing mass (SI: kg)
+            Mass,
+            // Unit representing length (SI: m)
+            Length
         };
 
         /**
@@ -116,56 +116,56 @@ class Physical {
          */
         static double ToAstroScale(double StandardScale, EQuantity type)
         {
-        	double Base = ASTRO_FORCE;
-	        switch (type) {
-	        	case Force:
-	        		Base = ASTRO_FORCE;
-	        		break;
-	        	case Mass:
-	        		Base = ASTRO_MASS;
-	        		break;
-	        	case Length:
-	        		Base = ASTRO_LENGTH;
-	        		break;
-	        }
-        	
-        	if (abs(StandardScale) <= (Base / NEGLIGIBLE_MAGNITUDE)) {
-        		return 0;
-        	}
-        	return StandardScale / Base;
+            double Base = ASTRO_FORCE;
+            switch (type) {
+                case Force:
+                    Base = ASTRO_FORCE;
+                    break;
+                case Mass:
+                    Base = ASTRO_MASS;
+                    break;
+                case Length:
+                    Base = ASTRO_LENGTH;
+                    break;
+            }
+            
+            if (abs(StandardScale) <= (Base / NEGLIGIBLE_MAGNITUDE)) {
+                return 0;
+            }
+            return StandardScale / Base;
         }
 
-		template<class T>
-		static T ToMetricScale(T AstroScale, EQuantity type)
+        template<class T>
+        static T ToMetricScale(T AstroScale, EQuantity type)
         {
-        	switch (type) {
-        		case Force:
-        			return AstroScale * ASTRO_FORCE;
-        		case Mass:
-        			return AstroScale * ASTRO_MASS;
-        		case Length:
-        			return AstroScale * ASTRO_LENGTH;
-        	}
+            switch (type) {
+                case Force:
+                    return AstroScale * ASTRO_FORCE;
+                case Mass:
+                    return AstroScale * ASTRO_MASS;
+                case Length:
+                    return AstroScale * ASTRO_LENGTH;
+            }
         }
 
-		static FVector3d ToAstroScale(FVector3d StandardScaledVec, EQuantity type)
+        static FVector3d ToAstroScale(FVector3d StandardScaledVec, EQuantity type)
         {
-        	double Base = ASTRO_FORCE;
-        	switch (type) {
-        		case Force:
-        			Base = ASTRO_FORCE;
-        		break;
-        		case Mass:
-        			Base = ASTRO_MASS;
-        		break;
-        		case Length:
-        			Base = ASTRO_LENGTH;
-        		break;
-        	}
-        	
-        	if (StandardScaledVec.Size() <= (Base / NEGLIGIBLE_MAGNITUDE)) {
-        		return FVector3d::Zero();
-        	}
-        	return StandardScaledVec / Base;
+            double Base = ASTRO_FORCE;
+            switch (type) {
+                case Force:
+                    Base = ASTRO_FORCE;
+                break;
+                case Mass:
+                    Base = ASTRO_MASS;
+                break;
+                case Length:
+                    Base = ASTRO_LENGTH;
+                break;
+            }
+            
+            if (StandardScaledVec.Size() <= (Base / NEGLIGIBLE_MAGNITUDE)) {
+                return FVector3d::Zero();
+            }
+            return StandardScaledVec / Base;
         }
 };
