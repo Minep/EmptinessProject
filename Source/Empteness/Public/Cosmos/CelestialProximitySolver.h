@@ -6,20 +6,20 @@
 #include "Physics/Orbital/CelestialBody.h"
 #include "GameFramework/Actor.h"
 #include "Spatial/SparseDynamicOctree3.h"
-#include "CelestialProximitySolver.generated.h"
 
-UCLASS()
-class EMPTENESS_API UCelestialProximitySolver : public UObject
+class EMPTENESS_API CelestialProximitySolver
 {
-    GENERATED_BODY()
 
 protected:
     UE::Geometry::FSparseDynamicOctree3* RootSOIs;
-    TMap<int, ICelestialBody*> celestials;
+
+    UPROPERTY()
+    TMap<int, ICelestialBody*> Celestials;
 
 public:    
     // Sets default values for this actor's properties
-    UCelestialProximitySolver();
+    CelestialProximitySolver();
+    virtual ~CelestialProximitySolver();
 
     virtual ICelestialBody* GetCapture(ICelestialBody* const &self);
     virtual void AddCelestialBody(ICelestialBody* const &body);

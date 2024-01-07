@@ -53,7 +53,7 @@ protected:
 
     bool bKinematicObject = false;
 
-    bool Started = false;
+    double CaptureUpdateTimer = 0;
 
 protected:
     // Called when the game starts or when spawned
@@ -74,6 +74,8 @@ public:
     virtual void Tick(float DeltaTime) override;
 
     virtual void AsyncPhysicsTickActor(float DeltaTime, float SimTime) override;
+
+    
 
     ///
     /// InertialFrame

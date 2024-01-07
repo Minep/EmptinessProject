@@ -67,9 +67,12 @@ public:
     double DampingFactor;
 
     UPROPERTY(EditAnywhere, DisplayName="Restitution Coefficient", meta=(ClampMax=1, ClampMin=0))
-    // Damping coefficient for angular momentum
+    // Restitution Coefficient
     double RestCoef = 0;
 
+protected:
+    bool CheckBadContactPoint(const FHitResult& HitResult, const double MaxToleranceSinSquared = 0.03) const;
+    
 public:
     /**
      * Add an impulse to the body which is local to the body's local frame.
@@ -131,8 +134,8 @@ public:
     /*
      * Rigid Body Collision Response
      */
-    
-    void HandleCollisionHit(const FHitResult& Hit);
+
+    bool HandleCollisionHit(const FHitResult& Hit);
     FVector3d GetHitPointTangentialVelocity(const FVector3d& HitPoint) const;
     virtual bool PreCheckCollisions(const FTransform& TargetTransform, TArray<FHitResult>& Hits);
     

@@ -4,6 +4,10 @@
 #include "Physics/RigidBody.h"
 #include "DrawDebugHelpers.h"
 #include "Flags.h"
+#include "MeshQueries.h"
+#include "MyUtils.h"
+#include "StaticMeshLODResourcesAdapter.h"
+#include "PhysicsEngine/BodySetup.h"
 
 
 // Sets default values for this component's properties
@@ -159,22 +163,22 @@ void ARigidBody::AsyncPhysicsTickActor(float DeltaTime, float SimTime) {
     FVector3d Loc(0,0,0);
     double Time = 0;
     for (auto& HitResult : CollisionHits) {
-        HandleCollisionHit(HitResult);
+        if (!HandleCollisionHit(HitResult)) {
+            continue;
+        }
         Time += HitResult.Time;
         Loc += HitResult.Location;
     }
 
     Time = Time / CollisionHits.Num();
-    if (Time > 1e-4) {
+
+    // We lerp the transform for mid-way hit. This is for handling fast moving object.
+    if (Time > UE_SMALL_NUMBER) {
         const auto SrcT = GetTransform();
         const auto RelQ = FMath::Lerp(SrcT.GetRotation(), T.GetRotation(), Time);
         const auto RelL = FMath::Lerp(SrcT.GetLocation(), T.GetLocation(), Time);
         T.SetTranslation(RelL);
         T.SetRotation(RelQ);
-        SetActorTransform(T);
-    }
-    else {
-        //SetActorRelativeLocation(Loc / CollisionHits.Num());
     }
 
     SetActorTransform(T);
@@ -196,25 +200,78 @@ bool ARigidBody::PreCheckCollisions(const FTransform& TargetTransform, TArray<FH
                                         FComponentQueryParams::DefaultComponentQueryParams);
 }
 
+bool ARigidBody::CheckBadContactPoint(const FHitResult& HitResult, const double MaxToleranceSinSquared) const
+{
+    if (!HitResult.Component.IsValid()) {
+        return false;
+    }
 
-void ARigidBody::HandleCollisionHit(const FHitResult& Hit)
+    const auto& HitNormal = HitResult.ImpactNormal;
+    const auto& HitPoint = HitResult.ImpactPoint;
+
+    const auto& AggGeom = HitResult.Component->GetBodySetup()->AggGeom;
+    const auto& Ct = HitResult.Component->GetOwner()->GetActorTransform();
+
+    // We only consider box colliders for which normals are not continuous.
+    const TArray<FKBoxElem>& Colliders = AggGeom.BoxElems;
+    if (Colliders.Num() == 0) {
+        return false;
+    }
+    
+    double MinDist = 1e30;
+    FVector3d Normal(0), N2 ,WPos;
+    const auto OffsetNormal = AnchorBody->GetCenterRelative(HitPoint).GetSafeNormal();
+    const FVector3d BackOff = HitResult.ImpactPoint - 0.5 * OffsetNormal;
+    
+    for (auto& Collider: Colliders) {
+        double D = Collider.GetClosestPointAndNormal(
+            BackOff, Ct
+            , WPos, N2);
+        if ((MinDist = std::min(MinDist, D)) == D) {
+            Normal = N2;
+        }
+    }
+
+#if SHOULD_DEBUG_RIGID_COLLISION
+    DrawDebugLine(GetWorld(),
+        HitPoint, HitPoint + Normal * 10,
+                FColor::Red, false, -1, 11);
+#endif
+    
+    // Filter out the edge or corner contact point as the normal is unstable there
+    if (MinDist <= UE_SMALL_NUMBER || (Normal ^ HitNormal).SizeSquared() >= MaxToleranceSinSquared) {
+#if SHOULD_DEBUG_RIGID_COLLISION
+        DrawDebugPoint(GetWorld(), HitPoint, 10, FColor(0xc2c2c2), false, -1, 10);
+#endif
+        return true;
+    }
+
+    return false;
+}
+
+
+bool ARigidBody::HandleCollisionHit(const FHitResult& Hit)
 {
     if (!(Hit.bBlockingHit || Hit.bStartPenetrating)) {
-        return;
+        return false;
     }
-
+    
     const ARigidBody* Target = Cast<ARigidBody>(Hit.Component->GetOwner());
     if (!Target || Target == this || Target->AnchorBody == this) {
-        return;
+        return false;
     }
 
-    const auto HitNormal = Hit.ImpactNormal;
-    const auto HitPoint = Hit.ImpactPoint;
+    const auto& HitNormal = Hit.ImpactNormal;
+    const auto& HitPoint = Hit.ImpactPoint;
+
+    if (CheckBadContactPoint(Hit)) {
+        return false;
+    }
 
 #if SHOULD_DEBUG_RIGID_COLLISION
     DrawDebugPoint(GetWorld(), HitPoint, 10, FColor::Purple, false, -1, 10);
     DrawDebugLine(GetWorld(),
-            HitPoint, HitPoint + HitNormal * 10,
+            HitPoint, HitPoint + HitNormal * 20,
                     FColor::Yellow, false, -1, 10);
 #endif
     
@@ -223,7 +280,7 @@ void ARigidBody::HandleCollisionHit(const FHitResult& Hit)
 
     const FInertiaTensor& I2 = AnchorBody->Inertia;
     const FInertiaTensor& I1 = Target->AnchorBody->Inertia;
-    
+
     const auto R2 = AnchorBody->GetCenterRelative(HitPoint);
     const auto R1 = Target->AnchorBody->GetCenterRelative(HitPoint);
     
@@ -237,6 +294,8 @@ void ARigidBody::HandleCollisionHit(const FHitResult& Hit)
 
     AnchorBody->AssignGlobalImpulse(J * HitNormal, HitPoint, Add);
     Target->AnchorBody->AssignGlobalImpulse(-J * HitNormal, HitPoint, Add);
+
+    return true;
 }
 
 FVector3d ARigidBody::GetHitPointTangentialVelocity(const FVector3d& HitPoint) const

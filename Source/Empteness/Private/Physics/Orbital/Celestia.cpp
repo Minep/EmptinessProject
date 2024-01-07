@@ -27,7 +27,7 @@ void ACelestia::BeginPlay()
     Super::BeginPlay();
     CosmosInstance = Cast<UCosmosInstance>(GetGameInstance());
 
-    ensure(CosmosInstance);
+    check(CosmosInstance);
 
     if (bKinematicObject) {
         return;
@@ -54,7 +54,11 @@ void ACelestia::BeginPlay()
     UE_LOG(LogTemp, Warning, TEXT("%s"), *GetActorLabel());
     LoadInitialState(ORBITAL_ELEMT);
 
-    Started = true;
+    auto ProximitySolver =
+            CosmosInstance->GetCosmosSubsystem<CelestialProximitySolver>(UCosmosInstance::PROXIMITY_SOLVER);
+    if (ProximitySolver) {
+        ProximitySolver->AddCelestialBody(this);
+    }
 }
 
 void ACelestia::PreInitializeComponents()
@@ -94,15 +98,32 @@ void ACelestia::UpdatePhysicsObjectTransform(double DeltaTime, FTransform& Trans
     }
     
     Transform.SetTranslation(GlobalSpatial.Position * 1e3);
-
-    UCelestialProximitySolver* ProximitySolver =
-        CosmosInstance->SubsystemOf<UCelestialProximitySolver>(UCosmosInstance::PROXIMITY_SOLVER);
-
-    //ProximitySolver->UpdateSpatialInfo(this);
+    
     UpdateOrbitalElement();
 
-    // ICelestialBody* capture = ProximitySolver->GetCapture(this);
-    // Centric = capture ? Cast<ACelestia>(capture) : nullptr;
+    if (CaptureUpdateTimer > 0.5) {
+        const auto& ProximitySolver =
+            CosmosInstance->GetCosmosSubsystem<CelestialProximitySolver>(UCosmosInstance::PROXIMITY_SOLVER);
+    
+        if (ProximitySolver) {
+            ProximitySolver->UpdateSpatialInfo(this);
+            auto Capture = ProximitySolver->GetCapture(this);
+    
+            if (Capture != this && Capture != Centric) {
+                Centric = Cast<ACelestia>(Capture);
+                if (Centric) {
+                    EM_LOG(Log, "%s Capture: %s", *GetActorLabel(), *Centric->GetActorLabel());
+                }
+            }
+        }
+        else {
+            EM_LOG(Warning, "Ptr to ProximitySolver is not valid anymore");
+        }
+        
+        CaptureUpdateTimer = 0;
+    }
+    CaptureUpdateTimer += DeltaTime;
+    
 }
 
 
@@ -118,6 +139,9 @@ void ACelestia::AsyncPhysicsTickActor(float DeltaTime, float SimTime) {
     UpdatePhysicsObjectTransform(DeltaTime, T);
     
     SetActorTransform(T);
+
+    DrawDebugPoint(GetWorld(), GlobalSpatial.Position * 1e3, 5, FColor::Red,
+                    false, 30, 0);
 }
 
 void ACelestia::LoadInitialState(CelestialStateSource source)

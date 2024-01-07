@@ -13,7 +13,7 @@ public class Empteness : ModuleRules
 			"Core", "CoreUObject", "Engine", "InputCore", "GeometryCore"
 		});
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+		PrivateDependencyModuleNames.AddRange(new string[] { "MeshConversion" });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

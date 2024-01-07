@@ -5,5 +5,18 @@
 
 UCosmosInstance::UCosmosInstance()
 {
-    ProximitySolver = NewObject<UCelestialProximitySolver>();
+    
 }
+
+UCosmosInstance::~UCosmosInstance()
+{
+    if (ProximitySolver) {
+        delete ProximitySolver;
+    }
+}
+
+void UCosmosInstance::OnStart()
+{
+    ProximitySolver = new CelestialProximitySolver();
+}
+

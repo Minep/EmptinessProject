@@ -16,7 +16,8 @@ class EMPTENESS_API UCosmosInstance : public UGameInstance
     GENERATED_BODY()
 
 public:
-    UCelestialProximitySolver* ProximitySolver;
+    CelestialProximitySolver* ProximitySolver = nullptr;
+
 public:
     enum CosmosSubsystem
     {
@@ -24,9 +25,14 @@ public:
     };
 public:
     UCosmosInstance();
+    ~UCosmosInstance();
+
+    virtual void OnStart() override;
+
+
 
     template <class T>
-    T* SubsystemOf(CosmosSubsystem subsys)
+    T* GetCosmosSubsystem(CosmosSubsystem subsys)
     {
         switch (subsys) {
             case PROXIMITY_SOLVER:
@@ -34,7 +40,6 @@ public:
                     return ProximitySolver;
                 }
         }
-
-        return nullptr;
+        check(false);
     }
 };

@@ -64,10 +64,10 @@ class PatchedConicSolver: public IOrbitalMechanicSolver
     
         virtual void SimulationStep(double mu, double dt, FSpatialState& state) override
         {
+            state.Position += state.Velocity * dt;
             FVector a_normal = GetGravitationPull(mu, state);
             
             state.Velocity += (a_normal + state.Acceleration) * dt;
-            state.Position += state.Velocity * dt;
         }
 
         virtual FVector3d GetGravitationPull(const double Mu, const FSpatialState& State) override
