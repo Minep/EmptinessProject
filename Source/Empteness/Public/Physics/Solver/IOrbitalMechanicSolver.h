@@ -9,6 +9,6 @@ class IOrbitalMechanicSolver {
         virtual void SolveSpatialStateAt(double t, FSpatialState& state, int iteration = 3) = 0;
         virtual void SimulationStep(double mu, double dt, FSpatialState& state) = 0;
         virtual FSpatialState SolveLocalSpatialState(IInertialFrame* ref, FOrbitalState& orbit_el) = 0;
-        virtual FVector3d GetGravitationPull(double mu, FSpatialState& state) = 0;
+        virtual FVector3d GetGravitationPull(const double mu, const FSpatialState& state) = 0;
 };
 

@@ -38,7 +38,7 @@ protected:
 
     double DampRooted = 0;
 
-    FInertiaTensor BodyInertia;
+    FInertiaTensor Inertia;
 
     UPROPERTY(VisibleAnywhere, DisplayName="Angular Velocity")
     FVector3d AngularVelocity;
@@ -133,8 +133,8 @@ public:
      */
     
     void HandleCollisionHit(const FHitResult& Hit);
-    FVector3d GetHitPointTangentVelocity(const FVector3d& HitPoint) const;
-    virtual bool PreCheckCollisions(const FTransform TargetTransform, TArray<FHitResult>& Hits);
+    FVector3d GetHitPointTangentialVelocity(const FVector3d& HitPoint) const;
+    virtual bool PreCheckCollisions(const FTransform& TargetTransform, TArray<FHitResult>& Hits);
     
     /*
      * Mechanic Property Calculation
@@ -159,14 +159,16 @@ public:
 
             LocalMass = std::max(LocalMass, 1.0);
             // Assume the uniformity following rectangular parallelepiped
-            BodyInertia = FInertiaTensor(Dim, LocalMass, FInertiaTensor::RectParallelepiped);
+            Inertia = FInertiaTensor(Dim, LocalMass, FInertiaTensor::RectParallelepiped);
 
             UE_LOG(LogTemp, Warning, TEXT("%f, %f, %f"), Dim.X, Dim.Y, Dim.Z);
 
         } else {
-            BodyInertia = FInertiaTensor(MassDistribution);
-            LocalMass = BodyInertia.GetMass();
+            Inertia = FInertiaTensor(MassDistribution);
+            LocalMass = Inertia.GetMass();
         }
+
+        CelestialMass = Physical::ToAstroScale(Inertia.GetMass(), Physical::Mass);
     }
 
     void NotifyMassDistributionChange(const FVector3d& LocalPosition, const double DeltaMass);
@@ -199,7 +201,7 @@ public:
 
     FVector3d GetCenterRelative(const FVector3d& GlobalPos) const
     {
-        const auto MassCenterPos = GetTransform().TransformPositionNoScale(BodyInertia.GetCenterOfMass());
+        const auto MassCenterPos = GetTransform().TransformPositionNoScale(Inertia.GetCenterOfMass());
         return GlobalPos - MassCenterPos;
     }
     
@@ -216,24 +218,24 @@ public:
     
         for (auto& Md: MassDistribution) {
             DrawDebugLine(GetWorld(),
-                T.TransformPositionNoScale(BodyInertia.GetCenterOfMass()), T.TransformPositionNoScale(Md.Position),
+                T.TransformPositionNoScale(Inertia.GetCenterOfMass()), T.TransformPositionNoScale(Md.Position),
                           FColor::Magenta, false, -1, 1);
 
             DrawDebugPoint(GetWorld(), T.TransformPositionNoScale(Md.Position), MinSize + MassMultiplier * Md.Mass,
                           FColor::Red, false, -1, 1);
         }
-        DrawDebugPoint(GetWorld(), T.TransformPositionNoScale(BodyInertia.GetCenterOfMass()), 50, FColor::Green,false, -1, 10);
-        DrawDebugPoint(GetWorld(), T.TransformPositionNoScale(BodyInertia.GetCenterOfMass()), 5, FColor::Green,true, -1, 10);
+        DrawDebugPoint(GetWorld(), T.TransformPositionNoScale(Inertia.GetCenterOfMass()), 50, FColor::Green,false, -1, 10);
         DrawDebugPoint(GetWorld(), GetActorLocation(), 30, FColor::Blue,false, -1, 10);
     }
 
-    void DebugDrawMotionInfo(float Multiplier = 1)
+    void DebugDrawMotionInfo(float Multiplier = 1) const
     {
         const auto T = GetTransform();
-        const auto origin = T.TransformPositionNoScale(BodyInertia.GetCenterOfMass());
-        DrawDebugLine(GetWorld(), origin, T.TransformPositionNoScale(Multiplier * AngularMomentum) + origin,
+        const auto Origin = T.TransformPositionNoScale(Inertia.GetCenterOfMass());
+        DrawDebugPoint(GetWorld(), T.TransformPositionNoScale(Inertia.GetCenterOfMass()), 3, FColor::Green,false, 20, 0);
+        DrawDebugLine(GetWorld(), Origin, Origin + T.TransformVectorNoScale(Multiplier * AngularMomentum),
                      FColor(0xfcba03), false, -1, 2);
-        DrawDebugLine(GetWorld(), origin, T.TransformPositionNoScale(Multiplier * AngularVelocity) + origin,
+        DrawDebugLine(GetWorld(), Origin, Origin + T.TransformVectorNoScale(Multiplier * AngularVelocity),
                      FColor(0x32a852), false, -1, 3);
     }
 };

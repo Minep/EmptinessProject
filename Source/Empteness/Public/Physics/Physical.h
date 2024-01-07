@@ -21,7 +21,7 @@ struct FSpatialState {
     UPROPERTY(VisibleAnywhere, Meta = (DisplayName = "Acceleration"))
     FVector Acceleration;
 
-    FSpatialState operator+(const FSpatialState& b) const
+    FORCEINLINE FSpatialState operator+(const FSpatialState& b) const
     {
         FSpatialState out;
         out.Position = Position + b.Position;
@@ -31,7 +31,7 @@ struct FSpatialState {
         return out;
     }
 
-    FSpatialState operator-(const FSpatialState& b) const
+    FORCEINLINE FSpatialState operator-(const FSpatialState& b) const
     {
         FSpatialState out;
         out.Position = Position - b.Position;
@@ -40,6 +40,23 @@ struct FSpatialState {
 
         return out;
     }
+
+    FORCEINLINE FSpatialState operator+=(const FSpatialState& b)
+    {
+        Position += b.Position;
+        Velocity += b.Velocity;
+        Acceleration += b.Acceleration;
+        return *this;
+    }
+
+    FORCEINLINE FSpatialState operator-=(const FSpatialState& b)
+    {
+        Position -= b.Position;
+        Velocity -= b.Velocity;
+        Acceleration -= b.Acceleration;
+        return *this;
+    }
+
 };
 
 USTRUCT()
@@ -78,10 +95,10 @@ struct FOrbitalState {
     double period;
 };
 
-#define ASTRO_MASS 6e24
-#define ASTRO_LENGTH 1e3
-#define ASTRO_FORCE 6e27
-#define NEGLIGIBLE_MAGNITUDE 1e6
+#define ASTRO_MASS 6.0e24
+#define ASTRO_LENGTH 1.0e3
+#define ASTRO_FORCE 6.0e27
+#define NEGLIGIBLE_MAGNITUDE 1.0e6
 
 class Physical {
     public:

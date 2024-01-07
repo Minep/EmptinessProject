@@ -45,13 +45,16 @@ void ACelestia::BeginPlay()
         c->Centric = this;
     }
 
-    Mu = Physical::GetGParam(RelativeMass, 0);
+    Mu = Physical::GetGParam(CelestialMass, 0);
 
     if (soi_radius <= 0) {
-        soi_radius = Physical::GetSOIRadius(RelativeMass, 0.01);
+        soi_radius = Physical::GetSOIRadius(CelestialMass, 0.01);
     }
-    
+
+    UE_LOG(LogTemp, Warning, TEXT("%s"), *GetActorLabel());
     LoadInitialState(ORBITAL_ELEMT);
+
+    Started = true;
 }
 
 void ACelestia::PreInitializeComponents()
@@ -68,14 +71,26 @@ void ACelestia::Tick(float DeltaTime)
 
 void ACelestia::UpdatePhysicsObjectTransform(double DeltaTime, FTransform& Transform)
 {
+    
     if (!Centric) {
         Solver->SimulationStep(0, DeltaTime, GlobalSpatial);
     } else {
+        GlobalSpatial -= Centric->PrevFrameStateDelta;
+        
         FSpatialState local = Centric->ToFrameLocalState(GlobalSpatial);
 
+        PrevFrameStateDelta = local;
+        
         Solver->SimulationStep(Centric->Mu, DeltaTime, local);
 
+        PrevFrameStateDelta -= local;
+
         GlobalSpatial = Centric->ToAbsoluteState(local);
+    }
+
+    if (GlobalSpatial.Velocity.SizeSquared() != 0) {
+        DrawDebugLine(GetWorld(), GlobalSpatial.Position * 1e3, (GlobalSpatial.Position + GlobalSpatial.Velocity) * 1e3, FColor::Blue,
+                    false, -1, 10, 30);
     }
     
     Transform.SetTranslation(GlobalSpatial.Position * 1e3);
@@ -109,6 +124,7 @@ void ACelestia::LoadInitialState(CelestialStateSource source)
 {
     if (!Centric)
     {
+        GlobalSpatial.Position = Physical::ToAstroScale(GetActorLocation(), Physical::Length);
         return;
     }
     

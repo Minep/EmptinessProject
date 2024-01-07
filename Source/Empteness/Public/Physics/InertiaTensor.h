@@ -27,20 +27,26 @@ protected:
     void UpdateCenterOfMass(FVector3d& NewCenterOfMass)
     {
         const auto DeltaC = CenterOfMass - NewCenterOfMass;
-        const double DX = DeltaC.X, DY = DeltaC.Y, DZ = DeltaC.Z; 
-        const double Dxx = Mass * (DY * DY + DZ * DZ),
-                     Dyy = Mass * (DX * DX + DZ * DZ),
-                     Dzz = Mass * (DX * DX + DY * DY),
-                     Dxy = -Mass * DX * DY,
-                     Dxz = -Mass * DX * DZ,
-                     Dyz = -Mass * DY * DZ;
+        UE::Geometry::FMatrix3d InertiaShifter;
 
-        const UE::Geometry::FMatrix3d InertiaShifter(Dxx, Dxy, Dxz,
-                                                     Dxy, Dyy, Dyz,
-                                                     Dxz, Dyz, Dzz);
+        ComputePartialTensor(InertiaShifter, DeltaC, Mass);
 
         Tensor += InertiaShifter;
         CenterOfMass.Set(NewCenterOfMass.X, NewCenterOfMass.Y, NewCenterOfMass.Z);
+    }
+
+    static void ComputePartialTensor(UE::Geometry::FMatrix3d& PartialTensorOut, const FVector3d& Pos, const double Mass)
+    {
+        const double Ixx = Mass * (Pos.Y * Pos.Y + Pos.Z * Pos.Z);
+        const double Iyy = Mass * (Pos.X * Pos.X + Pos.Z * Pos.Z);
+        const double Izz = Mass * (Pos.X * Pos.X + Pos.Y * Pos.Y);
+        const double Ixy = Mass * (-Pos.X * Pos.Y);
+        const double Ixz = Mass * (-Pos.X * Pos.Z);
+        const double Iyz = Mass * (-Pos.Y * Pos.Z);
+
+        PartialTensorOut.Row0.Set(Ixx, Ixy, Ixz);
+        PartialTensorOut.Row1.Set(Ixy, Iyy, Iyz);
+        PartialTensorOut.Row2.Set(Ixz, Iyz, Izz);
     }
     
 public:
@@ -66,20 +72,11 @@ public:
         CenterOfMass /= Mass;
         
         UE::Geometry::FMatrix3d PartialInertia = UE::Geometry::FMatrix3d::Zero(); 
-        for (auto& md : MassDistribution) {
-            const double m = md.Mass;
-            const FVector3d p = md.Position - CenterOfMass;
+        for (auto& MD : MassDistribution) {
+            const double M = MD.Mass;
+            const FVector3d P = MD.Position - CenterOfMass;
         
-            const double Ixx = m * (p.Y * p.Y + p.Z * p.Z);
-            const double Iyy = m * (p.X * p.X + p.Z * p.Z);
-            const double Izz = m * (p.X * p.X + p.Y * p.Y);
-            const double Ixy = m * (-p.X * p.Y);
-            const double Ixz = m * (-p.X * p.Z);
-            const double Iyz = m * (-p.Y * p.Z);
-
-            PartialInertia.Row0.Set(Ixx, Ixy, Ixz);
-            PartialInertia.Row1.Set(Ixy, Iyy, Iyz);
-            PartialInertia.Row2.Set(Ixz, Iyz, Izz);
+            ComputePartialTensor(PartialInertia, P, M);
 
             Tensor += PartialInertia;
         }
@@ -134,17 +131,9 @@ public:
         
         Point = GuestFrame.InverseTransformPosition(HostFrame.TransformPosition(Cp));
         Point = Guest.CenterOfMass - Point;
-        const double X = Point.X, Y = Point.Y, Z = Point.Z; 
-        const double Dxx = Guest.Mass * (Y * Y + Z * Z),
-                     Dyy = Guest.Mass * (X * X + Z * Z),
-                     Dzz = Guest.Mass * (X * X + Y * Y),
-                     Dxy = -Guest.Mass * X * Y,
-                     Dxz = -Guest.Mass * X * Z,
-                     Dyz = -Guest.Mass * Y * Z;
 
-        const UE::Geometry::FMatrix3d InertiaShifter(Dxx, Dxy, Dxz,
-                                                     Dxy, Dyy, Dyz,
-                                                     Dxz, Dyz, Dzz);
+        UE::Geometry::FMatrix3d InertiaShifter;
+        ComputePartialTensor(InertiaShifter, Point, Guest.Mass);
         
         Mass = Mass + Guest.Mass;
         Tensor += Guest.Tensor + InertiaShifter;
@@ -154,17 +143,9 @@ public:
     void StripFor(const FInertiaTensor& Guest, const FTransform& HostFrame, const FTransform& GuestFrame)
     {
         auto Point = GuestFrame.InverseTransformPosition(HostFrame.TransformPosition(CenterOfMass));
-        const double X = Point.X, Y = Point.Y, Z = Point.Z; 
-        const double Dxx = Guest.Mass * (Y * Y + Z * Z),
-                     Dyy = Guest.Mass * (X * X + Z * Z),
-                     Dzz = Guest.Mass * (X * X + Y * Y),
-                     Dxy = -Guest.Mass * X * Y,
-                     Dxz = -Guest.Mass * X * Z,
-                     Dyz = -Guest.Mass * Y * Z;
 
-        const UE::Geometry::FMatrix3d InertiaShifter(Dxx, Dxy, Dxz,
-                                                     Dxy, Dyy, Dyz,
-                                                     Dxz, Dyz, Dzz);
+        UE::Geometry::FMatrix3d InertiaShifter;
+        ComputePartialTensor(InertiaShifter, Point, Guest.Mass);
 
         Tensor = Tensor - (Guest.Tensor + InertiaShifter);
 
@@ -178,44 +159,35 @@ public:
         TensorInv = Tensor.Inverse();
     }
 
-    FVector3d GetAngularMomentum(const FVector3d& AngularVelocity) const
+    FVector3d ComputeAngularMomentum(const FVector3d& AngularVelocity) const
     {
         return Tensor * AngularVelocity;
     }
 
-    FVector3d GetAngularVelocity(const FVector3d& AngularMomentum) const
+    FVector3d ComputeAngularVelocity(const FVector3d& AngularMomentum) const
     {
         return TensorInv * AngularMomentum;
     }
 
-    FVector3d GetTorque(const FVector3d& Force, const FVector3d& Position) const
+    FVector3d ComputeTorque(const FVector3d& Force, const FVector3d& Position) const
     {
         return (Position - CenterOfMass) ^ Force;
     }
 
-    FVector3d InverseTransform(const FVector3d& Vec, const FTransform& T) const
+    FVector3d InverseScale(const FVector3d& Vec, const FTransform& RefFrame) const
     {
-        return T.TransformVectorNoScale(TensorInv * T.InverseTransformVectorNoScale(Vec));
+        return RefFrame.TransformVectorNoScale(TensorInv * RefFrame.InverseTransformVectorNoScale(Vec));
     }
 
     void ChangeMassDistribution(const FVector3d& Position, double DeltaMass)
     {
         // Step 1: Remove the contribution of this point mass from tensor
-        const double m = DeltaMass;
-        const FVector3d p = Position - CenterOfMass;
+        const FVector3d P = Position - CenterOfMass;
         
-        const double Ixx = m * (p.Y * p.Y + p.Z * p.Z);
-        const double Iyy = m * (p.X * p.X + p.Z * p.Z);
-        const double Izz = m * (p.X * p.X + p.Y * p.Y);
-        const double Ixy = m * (-p.X * p.Y);
-        const double Ixz = m * (-p.X * p.Z);
-        const double Iyz = m * (-p.Y * p.Z);
+        UE::Geometry::FMatrix3d InertiaShifter;
+        ComputePartialTensor(InertiaShifter, P, DeltaMass);
 
-        const UE::Geometry::FMatrix3d TensorChange(Ixx, Ixy, Ixz,
-                                                   Ixy, Iyy, Iyz,
-                                                   Ixz, Iyz, Izz);
-
-        Tensor += TensorChange;
+        Tensor += InertiaShifter;
 
         // Step 2: Shift the center of mass
         auto Cp = CenterOfMass * Mass + DeltaMass * Position; 

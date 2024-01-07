@@ -4,7 +4,6 @@
 #include "Physics/RigidBody.h"
 #include "DrawDebugHelpers.h"
 #include "Flags.h"
-#include "FrameTypes.h"
 
 
 // Sets default values for this component's properties
@@ -28,7 +27,7 @@ void ARigidBody::UpdateSystemMechanicProperty()
         }
 
         RB->UpdateSystemMechanicProperty();
-        BodyInertia.MergeWith(RB->BodyInertia, GetActorTransform(), RB->GetActorTransform());
+        Inertia.MergeWith(RB->Inertia, GetActorTransform(), RB->GetActorTransform());
     }
 }
 
@@ -55,8 +54,8 @@ void ARigidBody::BeginPlay()
     
     if (!bKinematicObject) {
         UpdateSystemMechanicProperty();
-        const auto CenterMassWorldOffset = GetTransform().TransformPositionNoScale(BodyInertia.GetCenterOfMass());
-        GlobalSpatial.Position = Physical::ToAstroScale(CenterMassWorldOffset, Physical::Length);
+        const auto CenterMassWorldOffset = GetTransform().TransformVectorNoScale(Inertia.GetCenterOfMass());
+        GlobalSpatial.Position += Physical::ToAstroScale(CenterMassWorldOffset, Physical::Length);
     }
     
     // FIXME for debug only
@@ -79,20 +78,20 @@ void ARigidBody::AssignLocalImpulse(const FVector3d& Impulse, const FVector3d& P
     }
 
     
-#if DEBUG_DRAWING
+#if SHOULD_DEBUG_RIGID
     const auto Center = FVector3d::Zero();
     const auto T = GetTransform();
     DrawDebugLine(GetWorld(),
             T.TransformPositionNoScale(Position), T.TransformPositionNoScale(Position + Impulse),
-                    FColor::Magenta, true, -1, 10);
+                    FColor::Magenta, false, -1, 10);
     DrawDebugLine(GetWorld(),
-            T.TransformPositionNoScale(BodyInertia.GetCenterOfMass()), T.TransformPositionNoScale(Position),
-            FColor::Turquoise, true, -1, 10);
+            T.TransformPositionNoScale(Inertia.GetCenterOfMass()), T.TransformPositionNoScale(Position),
+            FColor::Turquoise, false, -1, 10);
 #endif
 
     
-    const FVector3d Torque = BodyInertia.GetTorque(Impulse, Position);
-    const FVector3d DeltaAngVel = BodyInertia.GetAngularVelocity(Torque);
+    const FVector3d Torque = Inertia.ComputeTorque(Impulse, Position);
+    const FVector3d DeltaAngVel = Inertia.ComputeAngularVelocity(Torque);
 
     if (AssignMode == Add) {
         AngularMomentum += Torque;
@@ -104,7 +103,7 @@ void ARigidBody::AssignLocalImpulse(const FVector3d& Impulse, const FVector3d& P
     }
     
     const auto CenterVelChange =
-        Physical::ToAstroScale(Impulse / BodyInertia.GetMass(), Physical::Length);
+        Physical::ToAstroScale(Impulse / Inertia.GetMass(), Physical::Length);
     if (CenterVelChange.Size() > 0) {
         GlobalSpatial.Velocity += GetTransform().TransformVectorNoScale(CenterVelChange);
     }
@@ -114,13 +113,13 @@ void ARigidBody::UpdatePhysicsObjectTransform(double DeltaTime, FTransform& Tran
 {
     Super::UpdatePhysicsObjectTransform(DeltaTime, Transform);
 
-    FVector3d Euler = AngularVelocity * DeltaTime * (180.0 / UE_DOUBLE_PI);
+    FVector3d Euler = AngularVelocity * 180.0 / DOUBLE_PI * DeltaTime;
     // UE's interpretation on pitch clockwise-ness does not agree with physics's definition
     Euler.Y = -Euler.Y;    
     Euler.X = -Euler.X;    
-    Transform *= FQuat::MakeFromEuler(Euler);
-    
-    const auto MassCenter = Transform.TransformVectorNoScale(BodyInertia.GetCenterOfMass());
+    Transform.ConcatenateRotation(FQuat::MakeFromEuler(Euler));
+
+    const auto MassCenter = Transform.TransformVectorNoScale(Inertia.GetCenterOfMass());
     Transform.AddToTranslation(-MassCenter);
     
     AngularMomentum *= DampRooted;
@@ -141,21 +140,22 @@ void ARigidBody::AsyncPhysicsTickActor(float DeltaTime, float SimTime) {
         return;
     }
 
-#if DEBUG_DRAWING
+#if SHOULD_DEBUG_RIGID_MASS
     DebugDrawLocalMassDistribution(10, 2);
+#endif
+#if SHOULD_DEBUG_MOTION_TRACE
     DebugDrawMotionInfo(1);
 #endif
 
-    auto T = GetActorTransform();
+    FTransform T = GetActorTransform();
     
     UpdatePhysicsObjectTransform(DeltaTime, T);
-
     
     if (!PreCheckCollisions(T, CollisionHits)) {
         SetActorTransform(T);
         return;
     }
-
+    
     FVector3d Loc(0,0,0);
     double Time = 0;
     for (auto& HitResult : CollisionHits) {
@@ -174,13 +174,14 @@ void ARigidBody::AsyncPhysicsTickActor(float DeltaTime, float SimTime) {
         SetActorTransform(T);
     }
     else {
-        SetActorRelativeLocation(Loc / CollisionHits.Num());
+        //SetActorRelativeLocation(Loc / CollisionHits.Num());
     }
-    
+
+    SetActorTransform(T);
     CollisionHits.Reset();
 }
 
-bool ARigidBody::PreCheckCollisions(const FTransform TargetTransform, TArray<FHitResult>& Hits)
+bool ARigidBody::PreCheckCollisions(const FTransform& TargetTransform, TArray<FHitResult>& Hits)
 {
     const auto Component = Cast<UPrimitiveComponent>(RootComponent);
 
@@ -210,44 +211,46 @@ void ARigidBody::HandleCollisionHit(const FHitResult& Hit)
     const auto HitNormal = Hit.ImpactNormal;
     const auto HitPoint = Hit.ImpactPoint;
 
-#if DEBUG_DRAWING
-    DrawDebugPoint(GetWorld(), HitPoint, 10, FColor::Purple, true, -1, 10);
+#if SHOULD_DEBUG_RIGID_COLLISION
+    DrawDebugPoint(GetWorld(), HitPoint, 10, FColor::Purple, false, -1, 10);
     DrawDebugLine(GetWorld(),
             HitPoint, HitPoint + HitNormal * 10,
-                    FColor::Yellow, true, -1, 10);
+                    FColor::Yellow, false, -1, 10);
 #endif
     
     const FTransform& T2 = AnchorBody->GetTransform();
     const FTransform& T1 = Target->AnchorBody->GetTransform();
 
-    const FInertiaTensor& I2 = AnchorBody->BodyInertia;
-    const FInertiaTensor& I1 = Target->AnchorBody->BodyInertia;
+    const FInertiaTensor& I2 = AnchorBody->Inertia;
+    const FInertiaTensor& I1 = Target->AnchorBody->Inertia;
     
     const auto R2 = AnchorBody->GetCenterRelative(HitPoint);
     const auto R1 = Target->AnchorBody->GetCenterRelative(HitPoint);
     
-    const auto V2 = AnchorBody->GetHitPointTangentVelocity(HitPoint);
-    const auto V1 = Target->AnchorBody->GetHitPointTangentVelocity(HitPoint);
+    const auto V2 = AnchorBody->GetHitPointTangentialVelocity(HitPoint);
+    const auto V1 = Target->AnchorBody->GetHitPointTangentialVelocity(HitPoint);
     
-    auto J = ((I1.InverseTransform(R1 ^ HitNormal, T1) ^ R1)
-                            + (I2.InverseTransform(R2 ^ HitNormal, T2) ^ R2)) | HitNormal;
+    auto J = ((I1.InverseScale(R1 ^ HitNormal, T1) ^ R1)
+                     + (I2.InverseScale(R2 ^ HitNormal, T2) ^ R2)) | HitNormal;
     J += 1 / I1.GetMass() + 1 / I2.GetMass();
-    J = (-(1+RestCoef) * ((V2 - V1) | HitNormal)) / J;
+    J = -(1 + RestCoef) * ((V2 - V1) | HitNormal) / J;
 
     AnchorBody->AssignGlobalImpulse(J * HitNormal, HitPoint, Add);
     Target->AnchorBody->AssignGlobalImpulse(-J * HitNormal, HitPoint, Add);
 }
 
-FVector3d ARigidBody::GetHitPointTangentVelocity(const FVector3d& HitPoint) const
+FVector3d ARigidBody::GetHitPointTangentialVelocity(const FVector3d& HitPoint) const
 {
     const auto HitPointRelVec = GetCenterRelative(HitPoint);
     const FVector3d MassCenterVel = Physical::ToMetricScale(GlobalSpatial.Velocity, Physical::Length);
     auto HitPointVel = GetTransform().TransformVectorNoScale(AngularVelocity) ^ HitPointRelVec;
     HitPointVel = HitPointVel + MassCenterVel;
 
+#if SHOULD_DEBUG_RIGID_COLLISION
     DrawDebugLine(GetWorld(),
             HitPoint, HitPoint + HitPointVel,
-                    FColor::Cyan, true, -1, 10);
+                    FColor::Cyan, false, -1, 10);
+#endif
 
     return HitPointVel;
 }
@@ -267,17 +270,17 @@ void ARigidBody::AttachBody(ARigidBody* GuestObject)
     GuestObject->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
     GuestObject->bKinematicObject = true;
 
-    BodyInertia.MergeWith(GuestObject->BodyInertia, GetTransform(), GuestObject->GetTransform());
+    Inertia.MergeWith(GuestObject->Inertia, GetTransform(), GuestObject->GetTransform());
 
     if (IsRigidAttachment()) {
-        AnchorBody->BodyInertia.MergeWith(
-            GuestObject->BodyInertia,
+        AnchorBody->Inertia.MergeWith(
+            GuestObject->Inertia,
             AnchorBody->GetTransform(),
             GuestObject->GetTransform());
     }
 
     AnchorBody->AngularMomentum += AnchorBody->TransformVectorFrom(GuestObject, GuestObject->AngularMomentum);
-    AnchorBody->AngularVelocity = AnchorBody->BodyInertia.GetAngularVelocity(AnchorBody->AngularMomentum);
+    AnchorBody->AngularVelocity = AnchorBody->Inertia.ComputeAngularVelocity(AnchorBody->AngularMomentum);
 
     AnchorBody->UpdateSpatialState();
 }
@@ -285,7 +288,7 @@ void ARigidBody::AttachBody(ARigidBody* GuestObject)
 void ARigidBody::UpdateSpatialState()
 {
     auto AnchorT = AnchorBody->GetTransform();
-    auto NewCenterMass = GetTransform().TransformPositionNoScale(BodyInertia.GetCenterOfMass());
+    auto NewCenterMass = GetTransform().TransformPositionNoScale(Inertia.GetCenterOfMass());
     NewCenterMass = Physical::ToAstroScale(NewCenterMass, Physical::Length);
     
     auto R = NewCenterMass - GlobalSpatial.Position;
@@ -307,19 +310,17 @@ void ARigidBody::DetachSelfFromParent()
     }
     
     DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-    //Parent->BodyInertia.StripFor(BodyInertia, Parent->GetTransform(), GetTransform());
-    Parent->RecalculateMechanicProperty();
+    Parent->Inertia.StripFor(Inertia, Parent->GetTransform(), GetTransform());
 
     if (Parent != AnchorBody) {
-        AnchorBody->RecalculateMechanicProperty();
-        // AnchorBody->BodyInertia.StripFor(
-        //     BodyInertia,
-        //     AnchorBody->GetTransform(),
-        //     GetTransform());
+        AnchorBody->Inertia.StripFor(
+            Inertia,
+            AnchorBody->GetTransform(),
+            GetTransform());
     }
 
     AngularVelocity = TransformVectorFrom(AnchorBody, AnchorBody->AngularVelocity);
-    AngularMomentum = BodyInertia.GetAngularMomentum(AngularVelocity);
+    AngularMomentum = Inertia.ComputeAngularMomentum(AngularVelocity);
     
     AnchorBody->AngularMomentum -= AnchorBody->TransformVectorFrom(this, AngularMomentum);
     
@@ -335,11 +336,11 @@ void ARigidBody::DetachSelfFromParent()
 
 void ARigidBody::NotifyMassDistributionChange(const FVector3d& LocalPosition, const double DeltaMass)
 {
-    BodyInertia.ChangeMassDistribution(LocalPosition, DeltaMass);
+    Inertia.ChangeMassDistribution(LocalPosition, DeltaMass);
 
     
     // Update the angular velocity to account changed inertia.
-    AngularVelocity = BodyInertia.GetAngularVelocity(AngularMomentum);
+    AngularVelocity = Inertia.ComputeAngularVelocity(AngularMomentum);
 
     if (IsRigidAttachment()) {
         const auto Pos = AnchorBody->TransformPositionFrom(this, LocalPosition);

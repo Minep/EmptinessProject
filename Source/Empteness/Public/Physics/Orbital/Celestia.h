@@ -26,7 +26,7 @@ protected:
 
     UPROPERTY(EditAnywhere, Meta = (DisplayName = "Rel.Mass"))
     // Relative mass compare to Earth's Mass
-    double RelativeMass;
+    double CelestialMass;
 
     UPROPERTY(EditAnywhere, Meta = (DisplayName = "SOI Radius"))
     // Relative mass compare to Earth's Mass
@@ -35,7 +35,7 @@ protected:
     UPROPERTY(VisibleAnywhere, Meta = (DisplayName = "Global Spatial State"))
     FSpatialState GlobalSpatial;
 
-    FVector3d MainAttraction;
+    FSpatialState PrevFrameStateDelta;
 
 protected:
     UCosmosInstance* CosmosInstance;
@@ -52,6 +52,8 @@ protected:
     int id;
 
     bool bKinematicObject = false;
+
+    bool Started = false;
 
 protected:
     // Called when the game starts or when spawned
@@ -84,7 +86,7 @@ public:
 
     virtual double GetObjectMass() override
     {
-        return RelativeMass;
+        return CelestialMass;
     }
 
     virtual FSpatialState ToAbsoluteState(const FSpatialState& sstate) override

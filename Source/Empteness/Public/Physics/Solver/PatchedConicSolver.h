@@ -70,10 +70,10 @@ class PatchedConicSolver: public IOrbitalMechanicSolver
             state.Position += state.Velocity * dt;
         }
 
-        virtual FVector3d GetGravitationPull(double mu, FSpatialState& state) override
+        virtual FVector3d GetGravitationPull(const double Mu, const FSpatialState& State) override
         {
-            if (mu != 0) {
-                return mu / state.Position.SizeSquared() * (-state.Position / state.Position.Size());
+            if (Mu != 0) {
+                return Mu / State.Position.SizeSquared() * (-State.Position / State.Position.Size());
             }
             return FVector3d::Zero();
         }
