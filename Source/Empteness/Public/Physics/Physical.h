@@ -21,6 +21,9 @@ struct FSpatialState {
     UPROPERTY(VisibleAnywhere, Meta = (DisplayName = "Acceleration"))
     FVector Acceleration;
 
+    UPROPERTY(VisibleAnywhere, Meta = (DisplayName = "Gravity Acceleration"))
+    FVector GravityAcceleration;
+
     FORCEINLINE FSpatialState operator+(const FSpatialState& b) const
     {
         FSpatialState out;
@@ -37,7 +40,6 @@ struct FSpatialState {
         out.Position = Position - b.Position;
         out.Velocity = Velocity - b.Velocity;
         out.Acceleration = Acceleration - b.Acceleration;
-
         return out;
     }
 

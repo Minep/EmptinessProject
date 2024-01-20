@@ -4,7 +4,7 @@
 #include "Physics/Orbital/Celestia.h"
 #include "Physics/Physical.h"
 #include "MyUtils.h"
-#include "Physics/Solver/PatchedConicSolver.h"
+#include "Physics/Solver/TwoBodyDynamicsSolver.h"
 
 
 // Sets default values
@@ -14,7 +14,7 @@ ACelestia::ACelestia()
     PrimaryActorTick.bCanEverTick = false;
     bAsyncPhysicsTickEnabled = true;
 
-    Solver = new PatchedConicSolver();
+    Solver = new FTwoBodyDynamicsSolver();
 
     Tags.Push(ACTOR_TAG("Celestia"));
 
@@ -112,7 +112,7 @@ void ACelestia::UpdatePhysicsObjectTransform(double DeltaTime, FTransform& Trans
             if (Capture != this && Capture != Centric) {
                 Centric = Cast<ACelestia>(Capture);
                 if (Centric) {
-                    EM_LOG(Log, "%s Capture: %s", *GetActorLabel(), *Centric->GetActorLabel());
+                    EM_LOG(Log, "[%.3f] %s Capture: %s", SimTimeLocal, *GetActorLabel(), *Centric->GetActorLabel());
                 }
             }
         }
@@ -123,7 +123,7 @@ void ACelestia::UpdatePhysicsObjectTransform(double DeltaTime, FTransform& Trans
         CaptureUpdateTimer = 0;
     }
     CaptureUpdateTimer += DeltaTime;
-    
+    SimTimeLocal += DeltaTime;
 }
 
 
@@ -141,7 +141,7 @@ void ACelestia::AsyncPhysicsTickActor(float DeltaTime, float SimTime) {
     SetActorTransform(T);
 
     DrawDebugPoint(GetWorld(), GlobalSpatial.Position * 1e3, 5, FColor::Red,
-                    false, 30, 0);
+                    true, -1, 0);
 }
 
 void ACelestia::LoadInitialState(CelestialStateSource source)

@@ -235,7 +235,7 @@ public:
     {
         const auto T = GetTransform();
         const auto Origin = T.TransformPositionNoScale(Inertia.GetCenterOfMass());
-        DrawDebugPoint(GetWorld(), T.TransformPositionNoScale(Inertia.GetCenterOfMass()), 3, FColor::Green,false, 20, 0);
+        DrawDebugPoint(GetWorld(), T.TransformPositionNoScale(Inertia.GetCenterOfMass()), 3, FColor::Green,true, -1, 0);
         DrawDebugLine(GetWorld(), Origin, Origin + T.TransformVectorNoScale(Multiplier * AngularMomentum),
                      FColor(0xfcba03), false, -1, 2);
         DrawDebugLine(GetWorld(), Origin, Origin + T.TransformVectorNoScale(Multiplier * AngularVelocity),

@@ -4,7 +4,10 @@
 #include "Physics/Physical.h"
 
 class IOrbitalMechanicSolver {
-    public:
+protected:
+    ~IOrbitalMechanicSolver() = default;
+
+public:
         virtual void SolveOrbitalElement(double mu, const FSpatialState& state, FOrbitalState& orbit) = 0;
         virtual void SolveSpatialStateAt(double t, FSpatialState& state, int iteration = 3) = 0;
         virtual void SimulationStep(double mu, double dt, FSpatialState& state) = 0;

@@ -54,6 +54,7 @@ protected:
     bool bKinematicObject = false;
 
     double CaptureUpdateTimer = 0;
+    double SimTimeLocal = 0;
 
 protected:
     // Called when the game starts or when spawned

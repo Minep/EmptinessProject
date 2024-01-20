@@ -66,8 +66,8 @@ void ARigidBody::BeginPlay()
     if (!bKinematicObject) {
         // AddLocalImpulse(10 * FVector3d(0, 1, 0), 100 * FVector3d(0, 0, 1));
         // AddLocalImpulse(10 * FVector3d(0, -1, 0), 100 * FVector3d(0, 0, -1));
-        AssignLocalImpulse(10 * FVector3d(1, 0, 0), 100 * FVector3d(0, 1, 0));
-        AssignLocalImpulse(10 * FVector3d(-1, 0, 0), 100 * FVector3d(0, -1, 0));
+        // AssignLocalImpulse(10 * FVector3d(1, 0, 0), 100 * FVector3d(0, 1, 0));
+        // AssignLocalImpulse(10 * FVector3d(-1, 0, 0), 100 * FVector3d(0, -1, 0));
     }
 
 }
@@ -116,7 +116,7 @@ void ARigidBody::AssignLocalImpulse(const FVector3d& Impulse, const FVector3d& P
 void ARigidBody::UpdatePhysicsObjectTransform(double DeltaTime, FTransform& Transform)
 {
     Super::UpdatePhysicsObjectTransform(DeltaTime, Transform);
-
+    
     FVector3d Euler = AngularVelocity * 180.0 / DOUBLE_PI * DeltaTime;
     // UE's interpretation on pitch clockwise-ness does not agree with physics's definition
     Euler.Y = -Euler.Y;    
@@ -224,9 +224,7 @@ bool ARigidBody::CheckBadContactPoint(const FHitResult& HitResult, const double 
     const FVector3d BackOff = HitResult.ImpactPoint - 0.5 * OffsetNormal;
     
     for (auto& Collider: Colliders) {
-        double D = Collider.GetClosestPointAndNormal(
-            BackOff, Ct
-            , WPos, N2);
+        double D = Collider.GetClosestPointAndNormal(BackOff, Ct, WPos, N2);
         if ((MinDist = std::min(MinDist, D)) == D) {
             Normal = N2;
         }
